@@ -5,6 +5,82 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## \[2.4.0] - Unreleased
+### Added
+- \[SDK\] An arg to wait for data processing in the task data uploading function
+  (<https://github.com/opencv/cvat/pull/5502>)
+- Filename pattern to simplify uploading cloud storage data for a task (<https://github.com/opencv/cvat/pull/5498>, <https://github.com/opencv/cvat/pull/5525>)
+- \[SDK\] Configuration setting to change the dataset cache directory
+  (<https://github.com/opencv/cvat/pull/5535>)
+- \[SDK\] Class to represent a project as a PyTorch dataset
+  (<https://github.com/opencv/cvat/pull/5523>)
+- Grid view and multiple context images supported (<https://github.com/opencv/cvat/pull/5542>)
+- Interpolation is now supported for 3D cuboids.
+Tracks can be exported/imported to/from Datumaro and Sly Pointcloud formats (<https://github.com/opencv/cvat/pull/5629>)
+- Support for custom file to job splits in tasks (server API & SDK only)
+  (<https://github.com/opencv/cvat/pull/5536>)
+- \[SDK\] A PyTorch adapter setting to disable cache updates
+  (<https://github.com/opencv/cvat/pull/5549>)
+- YOLO v7 serverless feature added using ONNX backend (<https://github.com/opencv/cvat/pull/5552>)
+- Cypress test for social account authentication (<https://github.com/opencv/cvat/pull/5444>)
+- Dummy github and google authentication servers (<https://github.com/opencv/cvat/pull/5444>)
+- \[Server API\] Simple filters for object collection endpoints
+  (<https://github.com/opencv/cvat/pull/5575>)
+- Analytics based on Clickhouse, Vector and Grafana instead of the ELK stack (<https://github.com/opencv/cvat/pull/5646>)
+- \[SDK\] High-level API for working with organizations
+  (<https://github.com/opencv/cvat/pull/5718>)
+
+### Changed
+- The Docker Compose files now use the Compose Specification version
+  of the format. This version is supported by Docker Compose 1.27.0+
+  (<https://github.com/opencv/cvat/pull/5524>).
+- \[SDK\] The `resource_type` args now have the default value of `local` in task creation functions.
+  The corresponding arguments are keyword-only now.
+  (<https://github.com/opencv/cvat/pull/5502>)
+- \[Server API\] Added missing pagination or pagination parameters in
+  `/jobs/{id}/commits`, `/organizations`
+  (<https://github.com/opencv/cvat/pull/5557>)
+- Windows Installation Instructions adjusted to work around <https://github.com/nuclio/nuclio/issues/1821>
+- The contour detection function for semantic segmentation (<https://github.com/opencv/cvat/pull/4665>)
+- Delete newline character when generating a webhook signature (<https://github.com/opencv/cvat/pull/5622>)
+- DL models UI (<https://github.com/opencv/cvat/pull/5635>)
+- \[Server API\], \[SDK\] Arbitrary-sized collections in endpoints:
+  `/api/projects/{id}.tasks`, `/api/tasks/{id}.segments`, `/api/jobs/{id}.issues`,
+  `/api/issues/{id}.comments`, `/api/projects | tasks | jobs/{id}.labels`
+  (<https://github.com/opencv/cvat/pull/5662>)
+- Hide analytics link from non-admin users (<https://github.com/opencv/cvat/pull/5789>)
+- Hide notifications on login/logout/register (<https://github.com/opencv/cvat/pull/5788>)
+
+### Deprecated
+- TBD
+
+### Removed
+- \[Server API\] Endpoints with collections are removed in favor of their full variants
+  `/project/{id}/tasks`, `/tasks/{id}/jobs`, `/jobs/{id}/issues`, `/issues/{id}/comments`.
+  Corresponding fields are added or changed to provide a link to the child collection
+  in `/projects/{id}`, `/tasks/{id}`, `/jobs/{id}`, `/issues/{id}`
+  (<https://github.com/opencv/cvat/pull/5575>)
+- Limit on the maximum number of manifest files that can be added for cloud storage (<https://github.com/opencv/cvat/pull/5660>)
+
+### Fixed
+- Helm: Empty password for Redis (<https://github.com/opencv/cvat/pull/5520>)
+- Fixed HRNet serverless function runtime error on images with alpha channel (<https://github.com/opencv/cvat/pull/5570>)
+- Preview & chunk cache settings are ignored (<https://github.com/opencv/cvat/pull/5569>)
+- Export annotations to Azure container (<https://github.com/opencv/cvat/pull/5596>)
+- Fix the type of the credentials parameter of make_client from the Python SDK
+- Reduced number of noisy information on ortho views for 3D canvas (<https://github.com/opencv/cvat/pull/5608>)
+- Clean up disk space after a project is removed (<https://github.com/opencv/cvat/pull/5632>, <https://github.com/opencv/cvat/pull/5752>)
+- Submit button is locked while file is not selected when importing a dataset (<https://github.com/opencv/cvat/pull/5757>)
+- \[Server API\] Various errors in the generated schema (<https://github.com/opencv/cvat/pull/5575>)
+- Fixed freezing browser when request a job by NaN id (<https://github.com/opencv/cvat/pull/5763>)
+- SiamMask and TransT serverless functions (<https://github.com/opencv/cvat/pull/5658>)
+- Сreating a project or task with the same labels (<https://github.com/opencv/cvat/pull/5700>)
+- \[Server API\] Ability to rename label to an existing name (<https://github.com/opencv/cvat/pull/5662>)
+- Missing CVAT_BASE_URL in docker-compose.yml (<https://github.com/opencv/cvat/pull/5792>)
+
+### Security
+- Fixed vulnerability with social authentication (<https://github.com/opencv/cvat/pull/5521>)
+
 ## \[2.3.0] - 2022-12-22
 ### Added
 - SDK section in docs (<https://github.com/opencv/cvat/pull/4928>)
@@ -21,6 +97,7 @@ from online detectors & interactors) (<https://github.com/opencv/cvat/pull/4543>
 - Authentication with social accounts google & github (<https://github.com/opencv/cvat/pull/5147>, <https://github.com/opencv/cvat/pull/5181>, <https://github.com/opencv/cvat/pull/5295>)
 - REST API tests to export job datasets & annotations and validate their structure  (<https://github.com/opencv/cvat/pull/5160>)
 - Propagation backward on UI (<https://github.com/opencv/cvat/pull/5355>)
+- Keyboard shortcut to delete a frame (Alt + Del) (<https://github.com/opencv/cvat/pull/5369>)
 - A PyTorch dataset adapter layer in the SDK
   (<https://github.com/opencv/cvat/pull/5417>)
 - A way to debug the server deployed with Docker (<https://github.com/opencv/cvat/issues/5327>)
@@ -58,7 +135,7 @@ non-ascii paths while adding files from "Connected file share" (issue #4428)
   (<https://github.com/opencv/cvat/issues/4962>)
 - HRNET serverless function (<https://github.com/opencv/cvat/pull/4944>)
 - Invalid export of segmentation masks when the `background` label gets nonzero id (<https://github.com/opencv/cvat/pull/5056>)
-- A trailing slash in hostname does't allow SDK to send some requests
+- A trailing slash in hostname doesn't allow SDK to send some requests
   (<https://github.com/opencv/cvat/pull/5057>)
 - Double modal export/backup a task/project (<https://github.com/opencv/cvat/pull/5075>)
 - Fixed bug of computing Job's unsolved/resolved issues numbers (<https://github.com/opencv/cvat/pull/5101>)
@@ -89,11 +166,12 @@ non-ascii paths while adding files from "Connected file share" (issue #4428)
 - Added force logout on CVAT app start if token is missing (<https://github.com/opencv/cvat/pull/5331>)
 - Drawing issues on 3D canvas (<https://github.com/opencv/cvat/pull/5410>)
 - Missed token with using social account authentication (<https://github.com/opencv/cvat/pull/5344>)
+- Redundant writing of skeleton annotations (CVAT for images) (<https://github.com/opencv/cvat/pull/5387>)
 - The same object on 3D scene or `null` selected each click (PERFORMANCE) (<https://github.com/opencv/cvat/pull/5411>)
 - An exception when run export for an empty task (<https://github.com/opencv/cvat/pull/5396>)
 - Fixed FBRS serverless function runtime error on images with alpha channel (<https://github.com/opencv/cvat/pull/5384>)
 - Attaching manifest with custom name (<https://github.com/opencv/cvat/pull/5377>)
-- Uploading non-zip annotaion files (<https://github.com/opencv/cvat/pull/5386>)
+- Uploading non-zip annotation files (<https://github.com/opencv/cvat/pull/5386>)
 - Loss of rotation in CVAT format (<https://github.com/opencv/cvat/pull/5407>)
 - A permission problem with interactive model launches for workers in orgs (<https://github.com/opencv/cvat/issues/4996>)
 - Fix chart not being upgradable (<https://github.com/opencv/cvat/pull/5371>)
@@ -101,6 +179,10 @@ non-ascii paths while adding files from "Connected file share" (issue #4428)
 - Missing source tag in project annotations (<https://github.com/opencv/cvat/pull/5408>)
 - Creating a task with a Git repository via the SDK
   (<https://github.com/opencv/cvat/issues/4365>)
+- Queries via the low-level API using the `multipart/form-data` Content-Type with string fields
+  (<https://github.com/opencv/cvat/pull/5479>)
+
+### Security
 - `Project.import_dataset` not waiting for completion correctly
   (<https://github.com/opencv/cvat/pull/5459>)
 
@@ -173,7 +255,7 @@ Skeleton (<https://github.com/cvat-ai/cvat/pull/1>), (<https://github.com/opencv
 - Added helm chart support for CVAT 2.X and made ingress compatible with Kubernetes >=1.22 (<https://github.com/openvinotoolkit/cvat/pull/4448>)
 
 ### Fixed
-- Permission error occured when accessing the JobCommits (<https://github.com/openvinotoolkit/cvat/pull/4435>)
+- Permission error occurred when accessing the JobCommits (<https://github.com/openvinotoolkit/cvat/pull/4435>)
 - job assignee can remove or update any issue created by the task owner (<https://github.com/openvinotoolkit/cvat/pull/4436>)
 - Bug: Incorrect point deletion with keyboard shortcut (<https://github.com/openvinotoolkit/cvat/pull/4420>)
 - some AI Tools were not sending responses properly (<https://github.com/openvinotoolkit/cvat/issues/4432>)
@@ -258,7 +340,7 @@ Skeleton (<https://github.com/cvat-ai/cvat/pull/1>), (<https://github.com/opencv
 - Annotations search does not work correctly in some corner cases (when use complex properties with width, height) (<https://github.com/openvinotoolkit/cvat/pull/4198>)
 - Kibana requests are not proxied due to django-revproxy incompatibility with Django >3.2.x (<https://github.com/openvinotoolkit/cvat/issues/4085>)
 - Content type for getting frame with tasks/{id}/data/ endpoint (<https://github.com/openvinotoolkit/cvat/pull/4333>)
-- Bug: Permission error occured when accessing the comments of a specific issue (<https://github.com/openvinotoolkit/cvat/issues/4416>)
+- Bug: Permission error occurred when accessing the comments of a specific issue (<https://github.com/openvinotoolkit/cvat/issues/4416>)
 
 
 ### Security
@@ -313,7 +395,7 @@ Skeleton (<https://github.com/cvat-ai/cvat/pull/1>), (<https://github.com/opencv
 ### Added
 
 - Added ability to import data from share with cli without copying the data (<https://github.com/openvinotoolkit/cvat/issues/2862>)
-- Notification if the browser does not support nesassary API
+- Notification if the browser does not support necessary API
 - Added ability to export project as a dataset (<https://github.com/openvinotoolkit/cvat/pull/3365>)
   and project with 3D tasks (<https://github.com/openvinotoolkit/cvat/pull/3502>)
 - Additional inline tips in interactors with demo gifs (<https://github.com/openvinotoolkit/cvat/pull/3473>)
