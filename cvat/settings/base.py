@@ -15,15 +15,18 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
-from enum import Enum
-import os
-import sys
 import fcntl
+import mimetypes
+import os
 import shutil
 import subprocess
-import mimetypes
-from corsheaders.defaults import default_headers
+import sys
 from distutils.util import strtobool
+from enum import Enum
+
+from corsheaders.defaults import default_headers
+from logstash_async.constants import constants as logstash_async_constants
+
 from cvat import __version__
 
 mimetypes.add_type("application/wasm", ".wasm", True)
@@ -144,9 +147,6 @@ SITE_ID = 1
 REST_FRAMEWORK = {
     'DEFAULT_PARSER_CLASSES': [
         'rest_framework.parsers.JSONParser',
-        'rest_framework.parsers.FormParser',
-        'rest_framework.parsers.MultiPartParser',
-        'cvat.apps.engine.parsers.TusUploadParser',
     ],
     'DEFAULT_RENDERER_CLASSES': [
         'cvat.apps.engine.renderers.CVATAPIRenderer',
@@ -215,6 +215,7 @@ MIDDLEWARE = [
     # FIXME
     # 'corsheaders.middleware.CorsPostCsrfMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'cvat.apps.engine.middleware.RequestTrackingMiddleware',
     'crum.CurrentRequestUserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -292,6 +293,7 @@ class CVAT_QUEUES(Enum):
     EXPORT_DATA = 'export'
     AUTO_ANNOTATION = 'annotation'
     WEBHOOKS = 'webhooks'
+    NOTIFICATIONS = 'notifications'
 
 RQ_QUEUES = {
     CVAT_QUEUES.IMPORT_DATA.value: {
@@ -317,7 +319,13 @@ RQ_QUEUES = {
         'PORT': 6379,
         'DB': 0,
         'DEFAULT_TIMEOUT': '1h'
-    }
+    },
+    CVAT_QUEUES.NOTIFICATIONS.value: {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        'DEFAULT_TIMEOUT': '1h'
+    },
 }
 
 NUCLIO = {
@@ -430,6 +438,7 @@ os.makedirs(Path(IAM_OPA_BUNDLE_PATH).parent, exist_ok=True)
 # logging is known to be unreliable with RQ when using async transports
 vector_log_handler = os.getenv('VECTOR_EVENT_HANDLER', 'AsynchronousLogstashHandler')
 
+logstash_async_constants.QUEUED_EVENTS_FLUSH_INTERVAL = 2.0
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -635,5 +644,18 @@ CLICKHOUSE = {
         'PORT': os.getenv('CLICKHOUSE_PORT', 8123),
         'USER': os.getenv('CLICKHOUSE_USER', 'user'),
         'PASSWORD': os.getenv('CLICKHOUSE_PASSWORD', 'user'),
+    }
+}
+
+# Database
+# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'HOST': os.getenv('CVAT_POSTGRES_HOST', 'cvat_db'),
+        'NAME': os.getenv('CVAT_POSTGRES_DBNAME', 'cvat'),
+        'USER': os.getenv('CVAT_POSTGRES_USER', 'root'),
+        'PASSWORD': os.getenv('CVAT_POSTGRES_PASSWORD', ''),
+        'PORT': os.getenv('CVAT_POSTGRES_PORT', 5432),
     }
 }

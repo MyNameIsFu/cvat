@@ -421,6 +421,30 @@ class TestPostProjects:
         response = get_method(admin_user, "/projects")
         assert response.status_code == HTTPStatus.OK
 
+    @pytest.mark.parametrize(
+        "storage_id",
+        [
+            1,  # public bucket
+            2,  # private bucket
+        ],
+    )
+    @pytest.mark.parametrize("field", ["source_storage", "target_storage"])
+    def test_user_cannot_create_project_with_cloud_storage_without_access(
+        self, storage_id, field, regular_lonely_user
+    ):
+        user = regular_lonely_user
+
+        project_spec = {
+            "name": f"Project with foreign cloud storage {storage_id} settings",
+            field: {
+                "location": "cloud_storage",
+                "cloud_storage_id": storage_id,
+            },
+        }
+
+        response = post_method(user, "/projects", project_spec)
+        assert response.status_code == HTTPStatus.FORBIDDEN
+
 
 def _check_cvat_for_video_project_annotations_meta(content, values_to_be_checked):
     document = ET.fromstring(content)
@@ -650,6 +674,14 @@ class TestImportExportDatasetProject:
 
         assert task1_rotation == task2_rotation
 
+    def test_can_export_dataset_with_skeleton_labels_with_spaces(self):
+        # https://github.com/opencv/cvat/issues/5257
+        # https://github.com/opencv/cvat/issues/5600
+        username = "admin1"
+        project_id = 11
+
+        self._test_export_project(username, project_id, "COCO Keypoints 1.0")
+
 
 @pytest.mark.usefixtures("restore_db_per_function")
 class TestPatchProjectLabel:
@@ -821,6 +853,28 @@ class TestPatchProjectLabel:
         assert response.status_code == HTTPStatus.OK
         assert response.json()["labels"]["count"] == project["labels"]["count"] + 1
 
+    def test_admin_can_add_skeleton(self, projects, admin_user):
+        project = list(projects)[0]
+        new_skeleton = {
+            "name": "skeleton1",
+            "type": "skeleton",
+            "sublabels": [
+                {
+                    "name": "1",
+                    "type": "points",
+                }
+            ],
+            "svg": '<circle r="1.5" stroke="black" fill="#b3b3b3" cx="48.794559478759766" '
+            'cy="36.98698806762695" stroke-width="0.1" data-type="element node" '
+            'data-element-id="1" data-node-id="1" data-label-name="597501"></circle>',
+        }
+
+        response = patch_method(
+            admin_user, f'/projects/{project["id"]}', {"labels": [new_skeleton]}
+        )
+        assert response.status_code == HTTPStatus.OK
+        assert response.json()["labels"]["count"] == project["labels"]["count"] + 1
+
 
 @pytest.mark.usefixtures("restore_db_per_class")
 class TestGetProjectPreview:
@@ -941,3 +995,35 @@ class TestGetProjectPreview:
         )
 
         self._test_response_200(user["username"], pid, org_id=user["org"])
+
+
+@pytest.mark.usefixtures("restore_db_per_function")
+class TestPatchProject:
+    @pytest.mark.parametrize(
+        "storage_id",
+        [
+            1,  # public bucket
+            2,  # private bucket
+        ],
+    )
+    @pytest.mark.parametrize("field", ["source_storage", "target_storage"])
+    def test_user_cannot_update_project_with_cloud_storage_without_access(
+        self, storage_id, field, regular_lonely_user
+    ):
+        user = regular_lonely_user
+
+        project_spec = {
+            "name": f"Project with foreign cloud storage {storage_id} settings",
+        }
+        response = post_method(user, "/projects", project_spec)
+
+        updated_fields = {
+            field: {
+                "location": "cloud_storage",
+                "cloud_storage_id": storage_id,
+            }
+        }
+        project_id = response.json()["id"]
+
+        response = patch_method(user, f"/projects/{project_id}", updated_fields)
+        assert response.status_code == HTTPStatus.FORBIDDEN
